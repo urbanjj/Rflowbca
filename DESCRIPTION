@@ -1,0 +1,12 @@
+Package: Rflowbca
+Title: Flow-Based Clustering Algorithm
+Version: 0.1.0
+Authors@R: person("Jordy", "Meekes", email = "jordy.meekes@gmail.com", role = c("aut", "cre"))
+Description: An R implementation of the flow-based clustering algorithm by Meekes (2018).
+License: GPL-3
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+NeedsCompilation: no
+Packaged: 2025-07-18 08:09:56 UTC; SI
+Author: Jordy Meekes [aut, cre]
+Maintainer: Jordy Meekes <jordy.meekes@gmail.com>
