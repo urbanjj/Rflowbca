@@ -34,6 +34,7 @@
 #'   - `unit_set`: Details of the final cluster assignment for each original unit.
 #'   - `cluster_set`: Statistics for the final clusters.
 #' 
+#' @importFrom stats weighted.mean
 #' @export
 flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1, save_k = FALSE) {
 

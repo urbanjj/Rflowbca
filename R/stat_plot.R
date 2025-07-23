@@ -6,6 +6,7 @@
 #' @param matrix_list A list of square numeric matrices. The list must be named
 #'   with the round numbers, which correspond to the number of clusters.
 #' @return A data frame with columns: `round`, `mean`, `min`, `median`, `max`.
+#' @importFrom stats median
 #' @export
 flowbca_stat <- function(matrix_list) {
   # sapply is an efficient way to iterate over a list and collect results.
@@ -45,6 +46,7 @@ flowbca_stat <- function(matrix_list) {
 #' @param stat_data A data frame produced by `flowbca_stat`.
 #' @param upper_bound Optional: the maximum number of rounds (clusters) to display.
 #' @return A plot is drawn on the current graphics device. Returns `invisible(NULL)`.
+#' @importFrom graphics matplot grid axis text legend
 #' @export
 flowbca_plot <- function(stat_data, upper_bound = NULL) {
   # --- 1. Input Validation ---

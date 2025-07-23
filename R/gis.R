@@ -14,6 +14,7 @@
 #'   at a specific round of the clustering process, with the names corresponding
 #'   to the round number.
 #' @note This function requires the `sf` package.
+#' @importFrom stats aggregate
 #' @export
 flowbca_gis <- function(unit_set, unit_gis, join_col = "sourceunit") {
 
@@ -22,20 +23,16 @@ flowbca_gis <- function(unit_set, unit_gis, join_col = "sourceunit") {
     stop("The 'sf' package is required for this function.")
   }
 
-  # Parse join_col to handle both simple strings and named vectors
   if (is.character(join_col) && !is.null(names(join_col)) && length(join_col) == 1) {
-    # Format: c("unit_set_col" = "gis_col")
     unit_set_id_col <- names(join_col)[1]
     unit_gis_id_col <- join_col[1]
   } else if (is.character(join_col) && length(join_col) == 1) {
-    # Format: "common_col"
     unit_set_id_col <- join_col
     unit_gis_id_col <- join_col
   } else {
-    stop("'join_col' must be a single string (e.g., 'ID') or a single named vector (e.g., c('unit_set_ID' = 'gis_ID')).")
+    stop("'join_col' must be a single string or a single named vector.")
   }
 
-  # Validate required columns
   required_set_cols <- c("round", unit_set_id_col, "destinationunit")
   if (!all(required_set_cols %in% names(unit_set))) {
     stop("unit_set must contain columns: ", paste(required_set_cols, collapse = ", "))
@@ -44,11 +41,14 @@ flowbca_gis <- function(unit_set, unit_gis, join_col = "sourceunit") {
     stop(paste("unit_gis must contain the join column:", unit_gis_id_col))
   }
 
-  # --- 2. Initialization ---
+  # --- 2. Initialization & Standardization ---
   all_units_in_set <- unique(unit_set[[unit_set_id_col]])
   gis_filtered <- unit_gis[unit_gis[[unit_gis_id_col]] %in% all_units_in_set, ]
 
   gis_simple <- gis_filtered[, c(unit_gis_id_col)]
+  
+  # Standardize the column name to ensure consistent output for downstream functions
+  names(gis_simple)[names(gis_simple) == unit_gis_id_col] <- unit_set_id_col
 
   merge_rules <- unit_set[!is.na(unit_set$round), ]
   Z <- list()
@@ -67,7 +67,7 @@ flowbca_gis <- function(unit_set, unit_gis, join_col = "sourceunit") {
     }
 
     involved_ids <- unique(c(rule_for_round[[unit_set_id_col]], rule_for_round$destinationunit))
-    is_involved <- current_sf[[unit_gis_id_col]] %in% involved_ids
+    is_involved <- current_sf[[unit_set_id_col]] %in% involved_ids
 
     sf_to_process <- current_sf[is_involved, ]
     sf_static <- current_sf[!is_involved, ]
@@ -77,20 +77,19 @@ flowbca_gis <- function(unit_set, unit_gis, join_col = "sourceunit") {
         next
     }
 
-    match_indices <- match(sf_to_process[[unit_gis_id_col]], rule_for_round[[unit_set_id_col]])
+    match_indices <- match(sf_to_process[[unit_set_id_col]], rule_for_round[[unit_set_id_col]])
     to_update <- !is.na(match_indices)
-    sf_to_process[[unit_gis_id_col]][to_update] <- rule_for_round$destinationunit[match_indices[to_update]]
+    sf_to_process[[unit_set_id_col]][to_update] <- rule_for_round$destinationunit[match_indices[to_update]]
 
     merged_geoms <- aggregate(
       sf::st_geometry(sf_to_process),
-      by = list(ID = sf_to_process[[unit_gis_id_col]]),
+      by = list(ID = sf_to_process[[unit_set_id_col]]),
       FUN = sf::st_union
     )
-    names(merged_geoms)[names(merged_geoms) == "ID"] <- unit_gis_id_col
+    names(merged_geoms)[names(merged_geoms) == "ID"] <- unit_set_id_col
     processed_sf <- sf::st_as_sf(merged_geoms)
 
     geom_col_name <- attr(sf_static, "sf_column")
-    # Handle edge case where sf_static is empty
     if(is.null(geom_col_name) && nrow(sf_static) == 0) {
         geom_col_name <- attr(current_sf, "sf_column")
     }

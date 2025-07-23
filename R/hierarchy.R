@@ -44,6 +44,7 @@ find_hierarchy <- function(start_node, cluster_map) {
 #' @param child_col A string, the name of the column with child units (defaults to "sourceunit").
 #' @param parent_col A string, the name of the column with parent units (defaults to "destinationunit").
 #' @return The input data frame with a new `hierarchy` column.
+#' @importFrom stats setNames
 #' @export
 build_hierarchy <- function(data, child_col = "sourceunit", parent_col = "destinationunit") {
   # Ensure input is a data frame

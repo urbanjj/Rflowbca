@@ -17,6 +17,8 @@
 #'   location.
 #' @note Requires the `sf` and `magick` packages. For faster and
 #'   higher-quality PNG generation, it is recommended to also install the `ragg` package.
+#' @importFrom grDevices colors png dev.off
+#' @importFrom graphics par text points
 #' @export
 flowbca_ani <- function(flowbca_gis, unit_set, width = 1000,
                         filenm = 'flowbca_animation.gif', keep_frames = FALSE) {
