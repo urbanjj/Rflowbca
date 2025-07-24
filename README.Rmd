@@ -173,7 +173,7 @@ print(tree$Daegu)
 -   **`flowbca_stat(matrix_list)`**: `flowbca` 결과의 `F_matrix_history`를 입력받아 각 라운드별 평균, 최소, 중앙, 최대 내부 흐름 비율을 계산합니다.
 -   **`flowbca_plot(stat_data)`**: `flowbca_stat`이 생성한 데이터를 사용하여 통계치를 그래프로 그립니다.
 
-```{r stat_plot, fig.show='hold', out.width="100%"}
+```{r stat_plot, fig.show='hold', out.width="100%", fig.width=10,fig.height=5}
 # Calculate internal flow statistics from the matrix history
 stat_data <- flowbca_stat(bca_result$F_matrix_history)
 head(stat_data)
@@ -194,7 +194,7 @@ flowbca_plot(stat_data, upper_bound = 20)
 -   **`join_col`**: 두 데이터를 결합할 때 사용할 열 이름.
   - (예) join_col = c('join column name of unit_set', 'join column name of unit_gis')
 
-```{r gis, out.width="100%"}
+```{r gis, out.width="100%", fig.width=10,fig.height=10}
 # Generate merged spatial layers for each round
 # This can take a moment
 gis_layers <- flowbca_gis(bca_result$unit_set, KR_SiGun, join_col=c('sourceunit'='SiGun_NM'))
@@ -204,11 +204,15 @@ gis_layers <- flowbca_gis(bca_result$unit_set, KR_SiGun, join_col=c('sourceunit'
 print(paste("Number of spatial layers created:", length(gis_layers)))
 
 # Plot the final clustered boundaries
-par(mfrow = c(2, 2), mar=c(1,1,1,1))
-plot(st_geometry(gis_layers$`160`),main = "160",asp=NA)
-plot(st_geometry(gis_layers$`100`),main = "100",asp=NA)
-plot(st_geometry(gis_layers$`50`),main = "50",asp=NA)
-plot(st_geometry(gis_layers$`14`),main = "14",asp=NA)
+# The colors for each round are assigned arbitrarily
+par(mfrow = c(2, 2),       
+    mar = c(0.1, 0.1, 1, 0.1),
+    oma = c(0, 0, 0, 0),
+    xpd = NA)
+plot(gis_layers$`160`["sourceunit"],key.pos = NULL,reset = FALSE,main = "160",asp=NA)
+plot(gis_layers$`100`["sourceunit"],key.pos = NULL,reset = FALSE,main = "100",asp=NA)
+plot(gis_layers$`50`["sourceunit"],key.pos = NULL,reset = FALSE,main = "50",asp=NA)
+plot(gis_layers$`14`["sourceunit"],key.pos = NULL,reset = FALSE,main = "14",asp=NA)
 ```
 
 ### `flowbca_ani()`
@@ -218,6 +222,8 @@ plot(st_geometry(gis_layers$`14`),main = "14",asp=NA)
 -   **`flowbca_gis`**: `flowbca_gis` 함수의 결과물.
 -   **`unit_set`**: `flowbca` 결과의 `unit_set`.
 -   **`filenm`**: 저장할 GIF 파일 이름.
+-   **`width`**: 저장할 GIF의 가로 픽셀 값. 기본값은 1000px.
+-   **`keep_frames`: GIF에 대한 모든 frame을 현재 경로에 폴더를 생성하고 저장. 기본값은 FALSE.
 
 ```{r animation, eval=FALSE}
 # This code is not evaluated in the README build to save time,
@@ -237,5 +243,3 @@ flowbca_ani(
 ## References
 
 Meekes, J., & Hassink, W. H. J. (2018). flowbca: A flow-based cluster algorithm in Stata. *The Stata Journal*, *18*(3), 564–584.
-
-- flowbcaR의 README 파일은 GEMINI CLI(0.1.13)의 gemini-2.5-pro를 통해 수정 및 보완되었으며, 패키지 저자의 검토를 거쳤습니다.

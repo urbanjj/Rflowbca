@@ -487,11 +487,15 @@ print(paste("Number of spatial layers created:", length(gis_layers)))
 #> [1] "Number of spatial layers created: 147"
 
 # Plot the final clustered boundaries
-par(mfrow = c(2, 2), mar=c(1,1,1,1))
-plot(st_geometry(gis_layers$`160`),main = "160",asp=NA)
-plot(st_geometry(gis_layers$`100`),main = "100",asp=NA)
-plot(st_geometry(gis_layers$`50`),main = "50",asp=NA)
-plot(st_geometry(gis_layers$`14`),main = "14",asp=NA)
+# The colors for each round are assigned arbitrarily
+par(mfrow = c(2, 2),       
+    mar = c(0.1, 0.1, 1, 0.1),
+    oma = c(0, 0, 0, 0),
+    xpd = NA)
+plot(gis_layers$`160`["sourceunit"],key.pos = NULL,reset = FALSE,main = "160",asp=NA)
+plot(gis_layers$`100`["sourceunit"],key.pos = NULL,reset = FALSE,main = "100",asp=NA)
+plot(gis_layers$`50`["sourceunit"],key.pos = NULL,reset = FALSE,main = "50",asp=NA)
+plot(gis_layers$`14`["sourceunit"],key.pos = NULL,reset = FALSE,main = "14",asp=NA)
 ```
 
 <img src="man/figures/README-gis-1.png" width="100%" />
@@ -504,6 +508,9 @@ plot(st_geometry(gis_layers$`14`),main = "14",asp=NA)
 - **`flowbca_gis`**: `flowbca_gis` 함수의 결과물.
 - **`unit_set`**: `flowbca` 결과의 `unit_set`.
 - **`filenm`**: 저장할 GIF 파일 이름.
+- **`width`**: 저장할 GIF의 가로 픽셀 값. 기본값은 1000px.
+- \*\*`keep_frames`: GIF에 대한 모든 frame을 현재 경로에 폴더를 생성하고
+  저장. 기본값은 FALSE.
 
 ``` r
 # This code is not evaluated in the README build to save time,
@@ -528,6 +535,3 @@ alt="Clustering Animation" />
 
 Meekes, J., & Hassink, W. H. J. (2018). flowbca: A flow-based cluster
 algorithm in Stata. *The Stata Journal*, *18*(3), 564–584.
-
-- flowbcaR의 README 파일은 GEMINI CLI(0.1.13)의 gemini-2.5-pro를 통해
-  수정 및 보완되었으며, 패키지 저자의 검토를 거쳤습니다.

@@ -1,0 +1,11 @@
+```{r stat_plot, fig.show='hold', out.width="100%", fig.width=5}
+# Calculate internal flow statistics from the matrix history
+stat_data <- flowbca_stat(bca_result$F_matrix_history)
+head(stat_data)
+
+# Plot the statistics
+# The x-axis represents the number of clusters + 1
+par(mfrow = c(1, 2))
+flowbca_plot(stat_data, upper_bound = 50)
+flowbca_plot(stat_data, upper_bound = 20)
+```
