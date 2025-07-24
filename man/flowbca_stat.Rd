@@ -11,7 +11,7 @@ flowbca_stat(matrix_list)
 with the round numbers, which correspond to the number of clusters.}
 }
 \value{
-A data frame with columns: `round`, `mean`, `min`, `median`, `max`.
+A data frame with columns: \code{round}, \code{mean}, \code{min}, \code{median}, \code{max}.
 }
 \description{
 Computes summary statistics for internal relative flows from a list of matrices.

@@ -7,25 +7,25 @@
 flowbca_gis(unit_set, unit_gis, join_col = "sourceunit")
 }
 \arguments{
-\item{unit_set}{A data frame from the `flowbca` result, containing the merge
-rules (e.g., `round`, `sourceunit`, `destinationunit`).}
+\item{unit_set}{A data frame from the \code{flowbca} result, containing the merge
+rules (e.g., \code{round}, \code{sourceunit}, \code{destinationunit}).}
 
-\item{unit_gis}{An initial `sf` object with polygons corresponding to the units.}
+\item{unit_gis}{An initial \code{sf} object with polygons corresponding to the units.}
 
 \item{join_col}{Specifies the join key columns. It can be a single string for a
-common column name (e.g., `"ID"`) or a named vector for different names
-(e.g., `c("unit_set_ID" = "gis_ID")`). Defaults to `"sourceunit"`.}
+common column name (e.g., \code{"ID"}) or a named vector for different names
+(e.g., \code{c("unit_set_ID" = "gis_ID")}). Defaults to \code{"sourceunit"}.}
 }
 \value{
-A named list of `sf` objects. Each element represents the spatial state
-  at a specific round of the clustering process, with the names corresponding
-  to the round number.
+A named list of \code{sf} objects. Each element represents the spatial state
+at a specific round of the clustering process, with the names corresponding
+to the round number.
 }
 \description{
 Creates a series of merged spatial layers based on the clustering results
-from the `flowbca` function. It iteratively joins polygons according to the
+from the \code{flowbca} function. It iteratively joins polygons according to the
 merge rules for each round of the algorithm.
 }
 \note{
-This function requires the `sf` package.
+This function requires the \code{sf} package.
 }

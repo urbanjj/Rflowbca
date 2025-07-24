@@ -7,17 +7,17 @@
 build_hierarchy(data, child_col = "sourceunit", parent_col = "destinationunit")
 }
 \arguments{
-\item{data}{A data frame, typically the `unit_set` from a `flowbca` result.}
+\item{data}{A data frame, typically the \code{unit_set} from a \code{flowbca} result.}
 
 \item{child_col}{A string, the name of the column with child units (defaults to "sourceunit").}
 
 \item{parent_col}{A string, the name of the column with parent units (defaults to "destinationunit").}
 }
 \value{
-The input data frame with a new `hierarchy` column.
+The input data frame with a new \code{hierarchy} column.
 }
 \description{
 This function constructs hierarchy paths from a data frame of parent-child
 relationships using only base R functions. It is a replacement for the
-original `find_hierarchy_db`.
+original \code{find_hierarchy_db}.
 }

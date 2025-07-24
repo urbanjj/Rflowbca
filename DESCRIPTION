@@ -1,11 +1,22 @@
 Package: flowbcaR
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Flow-based Clustering Algorithm
+Version: 1.0.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("jongjin", "Yun", , "jongjin@uos.ac.kr", role = c("aut", "cre"))
+Description: This package provides an R implementation of the flow-based clustering algorithm originally introduced by Meekes and Hassink (2018), extended and refined by Yun (2025).
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Imports: 
+    magick,
+    sf
+Suggests: 
+    data.tree,
+    ragg,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Depends: 
+    R (>= 3.5)
+LazyData: true

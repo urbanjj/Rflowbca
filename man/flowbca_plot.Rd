@@ -7,12 +7,12 @@
 flowbca_plot(stat_data, upper_bound = NULL)
 }
 \arguments{
-\item{stat_data}{A data frame produced by `flowbca_stat`.}
+\item{stat_data}{A data frame produced by \code{flowbca_stat}.}
 
 \item{upper_bound}{Optional: the maximum number of rounds (clusters) to display.}
 }
 \value{
-A plot is drawn on the current graphics device. Returns `invisible(NULL)`.
+A plot is drawn on the current graphics device. Returns \code{invisible(NULL)}.
 }
 \description{
 Visualizes flow statistics with a fixed y-axis (0-1) and dynamic plot styles.

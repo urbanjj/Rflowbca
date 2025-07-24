@@ -49,8 +49,10 @@ terminates if the calculated minimum (Lm) exceeds this value. Defaults to
 }
 \value{
 A list containing two data frames:
-  - `unit_set`: Details of the final cluster assignment for each original unit.
-  - `cluster_set`: Statistics for the final clusters.
+\itemize{
+\item \code{unit_set}: Details of the final cluster assignment for each original unit.
+\item \code{cluster_set}: Statistics for the final clusters.
+}
 }
 \description{
 This function is an R translation of the flowbca.ado Stata package
