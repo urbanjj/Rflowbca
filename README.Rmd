@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
+# Introduction to flowbcaR
 ### *Jongjin Yun (2025-07-24)*
 
 `flowbcaR` is an R implementation of the Stata package `flowbca`, a hierarchical clustering algorithm for flow data. This package is used to identify functional regions by analyzing interactions (e.g., population movement) between spatial units such as administrative districts. Additionally, `flowbcaR` provides various functions to help understand the algorithm's results.
