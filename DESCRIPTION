@@ -1,23 +1,11 @@
-Package: Rflowbca
-Title: Flow-Based Clustering Algorithm
-Version: 0.1.0
-Authors@R: person("Jongjin", "Yun", email = "jongjin@uos.ac.kr", role = c("aut", "cre"))
-Description: This package provides an R implementation of the flow-based clustering algorithm originally introduced by Meekes (2018), extended and refined by Yun (2025).
-License: GPL-3
+Package: flowbcaR
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-NeedsCompilation: no
-Packaged: 2025-07-18 08:09:56 UTC; SI
-Author: Jongjin Yun [aut, cre]
-Maintainer: Jongjin Yun <jongjin@uos.ac.kr>
-Depends: R (>= 3.5.0)
-Imports: 
-    magick,
-    sf
-Suggests: 
-    knitr,
-    ragg,
-    rmarkdown
-VignetteBuilder:
-    knitr
-LazyData: true
