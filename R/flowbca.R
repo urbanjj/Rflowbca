@@ -5,7 +5,7 @@
 #' for flow data, including the detailed tie-breaking rules from the original
 #' Mata implementation.
 #'
-#' @param data A data frame where the first column contains source unit identifiers
+#' @param flow_input A data frame where the first column contains source unit identifiers
 #'   and subsequent columns represent the flows to destination units. The destination
 #'   columns must be in the same order as the source unit rows.
 #' @param q A numeric flow threshold (can be relative or absolute) that will
@@ -36,11 +36,11 @@
 #' 
 #' @importFrom stats weighted.mean
 #' @export
-flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1, save_k = FALSE) {
+flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1, save_k = FALSE) {
 
   # --- 1. Initial Setup ---
-  source_units <- data[[1]]
-  destination_units <- colnames(data)[-1]
+  source_units <- flow_input[[1]]
+  destination_units <- colnames(flow_input)[-1]
   
   if (length(source_units) != length(unique(source_units))) {
     stop("Source unit IDs must be unique names.")
@@ -54,7 +54,7 @@ flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1,
     stop("Source unit IDs must be identical to and in the same order as destination column names.")
   }
 
-  F_matrix <- as.matrix(data[, -1])
+  F_matrix <- as.matrix(flow_input[, -1])
   rownames(F_matrix) <- colnames(F_matrix) <- source_units
   
   if (nrow(F_matrix) != ncol(F_matrix)) {

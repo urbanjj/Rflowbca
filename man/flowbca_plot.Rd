@@ -2,19 +2,54 @@
 % Please edit documentation in R/stat_plot.R
 \name{flowbca_plot}
 \alias{flowbca_plot}
-\title{Plot Flow Statistics Over Clustering Rounds (Optimized)}
+\title{Plot Flow Statistics}
 \usage{
 flowbca_plot(stat_data, upper_bound = NULL)
 }
 \arguments{
-\item{stat_data}{A data frame produced by \code{flowbca_stat}.}
+\item{stat_data}{A data frame with flow statistics, typically the output of \code{flowbca_stat}.}
 
-\item{upper_bound}{Optional: the maximum number of rounds (clusters) to display.}
+\item{upper_bound}{An optional integer. If provided, only data points with a 'round'
+value less than or equal to this upper bound will be plotted.}
 }
 \value{
-A plot is drawn on the current graphics device. Returns \code{invisible(NULL)}.
+Invisibly returns \code{NULL}. This function is called for its side effect of
+creating a plot.
 }
 \description{
+This function takes a data frame of flow statistics and creates a side-by-side plot
+to visualize the results. The first plot shows the mean, min, median, and max
+internal flow ratios. The second plot shows the intra- and inter-cluster flow ratios.
+}
+\details{
+Plot Flow Statistics Over Clustering Rounds (Optimized)
+
 Visualizes flow statistics with a fixed y-axis (0-1) and dynamic plot styles.
 This optimized version is more robust, readable, and handles edge cases.
+}
+\examples{
+# The function is designed to be used with `flowbca_run()`,
+# which returns a list containing the `stats` data frame.
+# For a standalone example, we first need to generate some data.
+
+# Create a list of matrices for demonstration
+matrix_list <- list(
+  `10` = matrix(runif(100), 10, 10),
+  `9` = matrix(runif(81), 9, 9),
+  `8` = matrix(runif(64), 8, 8),
+  `7` = matrix(runif(49), 7, 7),
+  `6` = matrix(runif(36), 6, 6),
+  `5` = matrix(runif(25), 5, 5),
+  `4` = matrix(runif(16), 4, 4),
+  `3` = matrix(runif(9), 3, 3)
+)
+
+# Generate statistics
+stats <- flowbca_stat(matrix_list)
+
+# Plot the statistics
+flowbca_plot(stats)
+
+# Plot with an upper bound
+flowbca_plot(stats, upper_bound = 7)
 }

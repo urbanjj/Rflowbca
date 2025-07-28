@@ -5,7 +5,7 @@
 \title{A Flow-based Cluster Algorithm in R}
 \usage{
 flowbca(
-  data,
+  flow_input,
   q = 0,
   k = 1,
   opt_f = 1,
@@ -16,7 +16,7 @@ flowbca(
 )
 }
 \arguments{
-\item{data}{A data frame where the first column contains source unit identifiers
+\item{flow_input}{A data frame where the first column contains source unit identifiers
 and subsequent columns represent the flows to destination units. The destination
 columns must be in the same order as the source unit rows.}
 
