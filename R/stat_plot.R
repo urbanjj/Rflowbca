@@ -13,6 +13,7 @@ flowbca_stat <- function(matrix_list) {
   stats_matrix <- sapply(matrix_list, function(mat) {
     row_sums <- rowSums(mat)
     # Handle cases where row sum is 0 to prevent division by zero (NaN/Inf).
+    internal_sums <- ifelse(row_sums == 0, 0, diag(mat))
     internal_flows <- ifelse(row_sums == 0, 0, diag(mat) / row_sums)
 
     # Return a named vector of summary statistics for each matrix.
@@ -20,7 +21,9 @@ flowbca_stat <- function(matrix_list) {
       mean = mean(internal_flows, na.rm = TRUE),
       min = min(internal_flows, na.rm = TRUE),
       median = median(internal_flows, na.rm = TRUE),
-      max = max(internal_flows, na.rm = TRUE)
+      max = max(internal_flows, na.rm = TRUE),
+      intra_flow_ratio= sum(internal_sums) / sum((row_sums)),
+      inter_flow_ratio= 1 - (sum(internal_sums) / sum((row_sums)))
     )
   })
 
@@ -32,7 +35,7 @@ flowbca_stat <- function(matrix_list) {
   stats_df$round <- as.numeric(rownames(stats_df))
 
   # Ensure the column order is logical.
-  stats_df <- stats_df[, c("round", "mean", "min", "median", "max")]
+  stats_df <- stats_df[, c("round", "mean", "min", "median", "max", "intra_flow_ratio", "inter_flow_ratio")]
   rownames(stats_df) <- NULL # Reset row names for a clean data frame.
 
   return(stats_df)
@@ -43,14 +46,50 @@ flowbca_stat <- function(matrix_list) {
 #' Visualizes flow statistics with a fixed y-axis (0-1) and dynamic plot styles.
 #' This optimized version is more robust, readable, and handles edge cases.
 #'
-#' @param stat_data A data frame produced by `flowbca_stat`.
-#' @param upper_bound Optional: the maximum number of rounds (clusters) to display.
-#' @return A plot is drawn on the current graphics device. Returns `invisible(NULL)`.
-#' @importFrom graphics matplot grid axis text legend
+#' @title Plot Flow Statistics
+#' @description
+#' This function takes a data frame of flow statistics and creates a side-by-side plot
+#' to visualize the results. The first plot shows the mean, min, median, and max
+#' internal flow ratios. The second plot shows the intra- and inter-cluster flow ratios.
+#'
+#' @param stat_data A data frame with flow statistics, typically the output of `flowbca_stat`.
+#' @param upper_bound An optional integer. If provided, only data points with a 'round'
+#'   value less than or equal to this upper bound will be plotted.
+#'
+#' @return Invisibly returns `NULL`. This function is called for its side effect of
+#'   creating a plot.
+#'
+#' @importFrom graphics axis grid legend matplot par text
 #' @export
+#'
+#' @examples
+#' # The function is designed to be used with `flowbca_run()`,
+#' # which returns a list containing the `stats` data frame.
+#' # For a standalone example, we first need to generate some data.
+#'
+#' # Create a list of matrices for demonstration
+#' matrix_list <- list(
+#'   `10` = matrix(runif(100), 10, 10),
+#'   `9` = matrix(runif(81), 9, 9),
+#'   `8` = matrix(runif(64), 8, 8),
+#'   `7` = matrix(runif(49), 7, 7),
+#'   `6` = matrix(runif(36), 6, 6),
+#'   `5` = matrix(runif(25), 5, 5),
+#'   `4` = matrix(runif(16), 4, 4),
+#'   `3` = matrix(runif(9), 3, 3)
+#' )
+#'
+#' # Generate statistics
+#' stats <- flowbca_stat(matrix_list)
+#'
+#' # Plot the statistics
+#' flowbca_plot(stats)
+#'
+#' # Plot with an upper bound
+#' flowbca_plot(stats, upper_bound = 7)
 flowbca_plot <- function(stat_data, upper_bound = NULL) {
   # --- 1. Input Validation ---
-  required_cols <- c("round", "mean", "min", "median", "max")
+  required_cols <- c("round", "mean", "min", "median", "max", "intra_flow_ratio", "inter_flow_ratio")
   if (!all(required_cols %in% names(stat_data))) {
     stop("Input data must contain columns: ", paste(required_cols, collapse = ", "))
   }
@@ -81,35 +120,104 @@ flowbca_plot <- function(stat_data, upper_bound = NULL) {
   }
 
   # --- 4. Plotting ---
-  y_values <- plot_df[, c("mean", "min", "median", "max")]
-  plot_colors <- c("blue", "red", "green", "purple")
+  y_values_1 <- plot_df[, c("mean", "min", "median", "max")]
+  y_values_2 <- plot_df[, c("intra_flow_ratio", "inter_flow_ratio")]
+  plot_colors_1 <- c("blue", "red", "green", "purple")
+  plot_colors_2 <- c("orange", "darkgreen")
 
-  matplot(x = x_values, y = y_values, type = plot_type, pch = plot_pch,
-          lty = 1, lwd = 2, col = plot_colors, xlim = xlim_range, ylim = c(0, 1),
-          xaxt = "n", # Suppress default x-axis
-          xlab = "Round (Number of Clusters + 1)", ylab = "Internal Relative Flow",
-          main = "Flow Statistics per Clustering Round")
-  grid() # Add a grid for better readability
+  # Set up the plotting area for two plots
+  op <- par(mfrow = c(1, 2), mar = c(5, 4, 4, 2) + 0.1)
+  on.exit(par(op))
 
-  # Add custom integer-only x-axis
-  axis_ticks <- pretty(x_values)
-  # Filter to keep only integer ticks
-  axis_ticks <- axis_ticks[axis_ticks == floor(axis_ticks)]
+  # --- Plot 1: Internal Relative Flow Statistics ---
+  matplot(x = x_values, y = y_values_1, type = plot_type, pch = plot_pch,
+          lty = 1, lwd = 2, col = plot_colors_1, xlim = xlim_range, ylim = c(0, 1),
+          xaxt = "n",
+          xlab = "Round (Number of Clusters + 1)", ylab = "Proportion",
+          main = "Statistics of Internal Relative Flow\nby Cluster")
+  grid()
+  
+  # --- 5. Dynamic X-axis Labeling ---
+  if (diff(range(x_values)) > 20) {
+    axis_ticks <- seq(from = floor(min(x_values)/10)*10, to = ceiling(max(x_values)/10)*10, by = 10)
+  } else {
+    axis_ticks <- pretty(x_values)
+    axis_ticks <- axis_ticks[axis_ticks == floor(axis_ticks)]
+  }
   axis(1, at = axis_ticks, labels = axis_ticks)
 
-  # --- 5. Add Text Labels (if few points) ---
   if (num_points <= 20) {
-    stat_names <- c("mean", "min", "median", "max")
-    # Use mapply for a more idiomatic R way to loop over multiple vectors
     mapply(function(y_col, color) {
       y_vals <- plot_df[[y_col]]
       text(x = x_values, y = y_vals, labels = round(y_vals, 3),
            col = color, pos = 3, cex = 0.75)
-    }, stat_names, plot_colors)
+    }, names(y_values_1), plot_colors_1)
+  }
+  legend("topleft", legend = names(y_values_1), col = plot_colors_1, lwd = 2, bty = "n")
+
+  # --- Plot 2: Intra- and Inter-Cluster Flow Proportions ---
+  matplot(x = x_values, y = y_values_2, type = plot_type, pch = plot_pch,
+          lty = 1, lwd = 2, col = plot_colors_2, xlim = xlim_range, ylim = c(0, 1),
+          xaxt = "n",
+          xlab = "Round (Number of Clusters + 1)", ylab = "Proportion",
+          main = "Proportion of Intra- and Inter-Cluster\nFlows in Overall Flow")
+  grid()
+  axis(1, at = axis_ticks, labels = axis_ticks)
+
+  # --- 6. Find and Plot Intersection ---
+  intersection <- find_intersection(plot_df)
+  if (!is.null(intersection)) {
+    points(intersection$round, intersection$ratio, pch = 19, col = "red", cex = 1.5)
+    text(intersection$round, intersection$ratio, 
+         labels = paste0("Round: ", round(intersection$round, 2), "\nProportion: ", round(intersection$ratio, 2)),
+         pos = 4, col = "red")
   }
 
-  # --- 6. Add Legend ---
-  legend("topleft", legend = names(y_values), col = plot_colors, lwd = 2, bty = "n")
+  if (num_points <= 20) {
+    mapply(function(y_col, color) {
+      y_vals <- plot_df[[y_col]]
+      text(x = x_values, y = y_vals, labels = round(y_vals, 3),
+           col = color, pos = 3, cex = 0.75)
+    }, names(y_values_2), plot_colors_2)
+  }
+  legend("topleft", legend = c('intra','inter'), col = plot_colors_2, lwd = 2, bty = "n")
 
   return(invisible(NULL))
+}
+
+#' Find Intersection of Intra- and Inter-flow Ratios
+#'
+#' This helper function calculates the intersection point of the 
+#' `intra_flow_ratio` and `inter_flow_ratio` curves using linear interpolation.
+#'
+#' @param plot_df A data frame containing the columns `round`, `intra_flow_ratio`, and `inter_flow_ratio`.
+#' @return A list containing the `round` and `ratio` of the intersection point, or `NULL` if no intersection is found.
+find_intersection <- function(plot_df) {
+  for (i in 1:(nrow(plot_df) - 1)) {
+    p1_intra <- plot_df$intra_flow_ratio[i]
+    p2_intra <- plot_df$intra_flow_ratio[i+1]
+    p1_inter <- plot_df$inter_flow_ratio[i]
+    p2_inter <- plot_df$inter_flow_ratio[i+1]
+
+    if ((p1_intra > p1_inter && p2_intra < p2_inter) || (p1_intra < p1_inter && p2_intra > p2_inter)) {
+      # Linear interpolation to find the intersection point
+      # (y1_intra - y1_inter) + (x - x1) * ((y2_intra - y1_intra)/(x2 - x1) - (y2_inter - y1_inter)/(x2 - x1)) = 0
+      x1 <- plot_df$round[i]
+      x2 <- plot_df$round[i+1]
+      y1_intra <- p1_intra
+      y2_intra <- p2_intra
+      y1_inter <- p1_inter
+      y2_inter <- p2_inter
+
+      denominator <- (y2_intra - y1_intra) - (y2_inter - y1_inter)
+      if (denominator == 0) next # Parallel lines
+
+      t <- (y1_inter - y1_intra) / denominator
+      round_val <- x1 + t * (x2 - x1)
+      ratio_val <- y1_intra + t * (y2_intra - y1_intra)
+
+      return(list(round = round_val, ratio = ratio_val))
+    }
+  }
+  return(NULL)
 }

@@ -66,8 +66,10 @@ flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1,
 
   merge_history <- list()
   F_matrix_history <- list()
+  C_matrix_history <- list()
   
   # --- 2. Main Clustering Loop ---
+  first_try <- TRUE
   while (nrow(F_matrix) > k) {
     
     K <- nrow(F_matrix)
@@ -199,12 +201,24 @@ flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1,
     C[r_idx, s_idx] <- 1 
     C <- C[, -r_idx, drop = FALSE] 
     
+    if (first_try) {
+      F_matrix_history[[1]] <- list(F_matrix)
+      first_try <- FALSE
+    }
+
     F_matrix <- t(C) %*% F_matrix %*% C
     new_ids <- current_ids[-r_idx]
     rownames(F_matrix) <- colnames(F_matrix) <- new_ids
 
+    C_matrix <- C
+    rownames(C_matrix) <- current_ids
+    colnames(C_matrix) <- new_ids
+
     F_matrix_history[[length(F_matrix_history) + 1]] <- list(
       F_matrix
+    )
+    C_matrix_history[[length(C_matrix_history) + 1]] <- list(
+      C_matrix
     )
 
   }
@@ -242,7 +256,10 @@ flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1,
   internal_relative <- ifelse(row_flows == 0, 0, internal / row_flows)
   
   F_matrix_history <- lapply(F_matrix_history, \(x) x[[1]])
-  names(F_matrix_history) <- max(unit_set$round,na.rm=TRUE):min(unit_set$round,na.rm=TRUE)
+  names(F_matrix_history) <- (max(unit_set$round,na.rm=TRUE)+1):min(unit_set$round,na.rm=TRUE)
+
+  C_matrix_history <- lapply(C_matrix_history, \(x) x[[1]])
+  names(C_matrix_history) <- max(unit_set$round,na.rm=TRUE):min(unit_set$round,na.rm=TRUE)
 
   cluster_set <- data.frame(
     clusterid = final_clusters,
@@ -261,7 +278,8 @@ flowbca <- function(data, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1,
 
   if(save_k == TRUE) {
     return(list(unit_set = unit_set, cluster_set = cluster_set,
-            F_matrix=F_matrix, F_matrix_history = F_matrix_history))
+            F_matrix=F_matrix, F_matrix_history = F_matrix_history,
+            C_matrix_history = C_matrix_history))
   } else {
     return(list(unit_set = unit_set, cluster_set = cluster_set,
             F_matrix=F_matrix))
