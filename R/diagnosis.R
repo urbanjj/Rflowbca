@@ -65,7 +65,7 @@ flowbca_diagnosis <- function(flow_input, is_directed=TRUE){
         names(dg_data) <- c('relative','absolute')
     } else {
         dg_data <- list(flowbca(flow_input,opt_f=2,save_k=TRUE),
-                        flowbca(flow_input,opt_f=4),save_k=TRUE)
+                        flowbca(flow_input,opt_f=4,save_k=TRUE))
         names(dg_data) <- c('relative','absolute')
     }
 

@@ -70,13 +70,12 @@ cluster_set <- function(unit_set){
 #' Calculate the modularity matrix.
 #' @noRd
 CalcModMatrix <- function(F_matrix_1, is_directed = TRUE, modularity_resolution = 1.0){
-  mat <- as.matrix(F_matrix_1)
-  total_weight <- if(is_directed == TRUE){
-    sum(mat)
+  if(is_directed == TRUE) {
+    mat <- as.matrix(F_matrix_1)
   } else {
-    sum(mat) * 2
+    mat <- as.matrix(F_matrix_1) + t(as.matrix(F_matrix_1))
   }
-
+  total_weight <- sum(mat)
   if (total_weight == 0) {
     return(matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat)))
   }
@@ -91,12 +90,12 @@ CalcModMatrix <- function(F_matrix_1, is_directed = TRUE, modularity_resolution 
 #' Internal function to calculate modularity for a given community structure.
 #' @noRd
 calculate_modularity <- function(F_matrix_1, M_matrix, communities, is_directed = TRUE){
-  mat <- as.matrix(F_matrix_1)
-  total_weight <- if(is_directed == TRUE){
-    sum(mat)
+  if(is_directed == TRUE) {
+    mat <- as.matrix(F_matrix_1)
   } else {
-    sum(mat) * 2
+    mat <- as.matrix(F_matrix_1) + t(as.matrix(F_matrix_1))
   }
+  total_weight <- sum(mat)
   same_community_matrix <- outer(communities, communities, "==")
   modularity <- sum(M_matrix[same_community_matrix]) / total_weight
   return(modularity)

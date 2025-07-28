@@ -119,14 +119,17 @@ flowbca_plot <- function(stat_data, upper_bound = NULL) {
     x_values + c(0.5, -0.5) # Add padding for a single point plot
   }
 
-  # --- 4. Plotting ---
+  # --- 4. Plotting Setup ---
   y_values_1 <- plot_df[, c("mean", "min", "median", "max")]
   y_values_2 <- plot_df[, c("intra_flow_ratio", "inter_flow_ratio")]
+  # Use shorter, consistent names for the second plot's legend and labels
+  names(y_values_2) <- c("intra", "inter")
+  
   plot_colors_1 <- c("blue", "red", "green", "purple")
   plot_colors_2 <- c("orange", "darkgreen")
 
-  # Set up the plotting area for two plots
-  op <- par(mfrow = c(1, 2), mar = c(5, 4, 4, 2) + 0.1)
+  # Set up the plotting area for two plots and ensure it's reset on exit
+  op <- par(mfrow = c(1, 2))
   on.exit(par(op))
 
   # --- Plot 1: Internal Relative Flow Statistics ---
@@ -138,13 +141,12 @@ flowbca_plot <- function(stat_data, upper_bound = NULL) {
   grid()
   
   # --- 5. Dynamic X-axis Labeling ---
-  if (diff(range(x_values)) > 20) {
-    axis_ticks <- seq(from = floor(min(x_values)/10)*10, to = ceiling(max(x_values)/10)*10, by = 10)
+  axis_ticks <- if (diff(range(x_values, na.rm = TRUE)) > 20) {
+    seq(from = floor(min(x_values, na.rm = TRUE)/10)*10, to = ceiling(max(x_values, na.rm = TRUE)/10)*10, by = 10)
   } else {
-    axis_ticks <- pretty(x_values)
-    axis_ticks <- axis_ticks[axis_ticks == floor(axis_ticks)]
+    pretty(x_values)
   }
-  axis(1, at = axis_ticks, labels = axis_ticks)
+  axis(1, at = axis_ticks[axis_ticks == floor(axis_ticks)], labels = axis_ticks[axis_ticks == floor(axis_ticks)])
 
   if (num_points <= 20) {
     mapply(function(y_col, color) {
@@ -162,25 +164,25 @@ flowbca_plot <- function(stat_data, upper_bound = NULL) {
           xlab = "Round (Number of Clusters + 1)", ylab = "Proportion",
           main = "Proportion of Intra- and Inter-Cluster\nFlows in Overall Flow")
   grid()
-  axis(1, at = axis_ticks, labels = axis_ticks)
+  axis(1, at = axis_ticks[axis_ticks == floor(axis_ticks)], labels = axis_ticks[axis_ticks == floor(axis_ticks)])
 
   # --- 6. Find and Plot Intersection ---
   intersection <- find_intersection(plot_df)
   if (!is.null(intersection)) {
     points(intersection$round, intersection$ratio, pch = 19, col = "red", cex = 1.5)
     text(intersection$round, intersection$ratio, 
-         labels = paste0("Round: ", round(intersection$round, 2), "\nProportion: ", round(intersection$ratio, 2)),
+         labels = paste0("Round: ", round(intersection$round, 2), "\nRatio: ", round(intersection$ratio, 2)),
          pos = 4, col = "red")
   }
 
   if (num_points <= 20) {
     mapply(function(y_col, color) {
-      y_vals <- plot_df[[y_col]]
+      y_vals <- y_values_2[[y_col]]
       text(x = x_values, y = y_vals, labels = round(y_vals, 3),
            col = color, pos = 3, cex = 0.75)
     }, names(y_values_2), plot_colors_2)
   }
-  legend("topleft", legend = c('intra','inter'), col = plot_colors_2, lwd = 2, bty = "n")
+  legend("topleft", legend = names(y_values_2), col = plot_colors_2, lwd = 2, bty = "n")
 
   return(invisible(NULL))
 }
