@@ -3,7 +3,7 @@
 #' This function plots the diagnosis data.
 #'
 #' @param diagnosis_data A list containing relative and absolute data.
-#' @param y_var Name of the y-axis variable to plot (one of: 'mean', 'min', 'median', 'max', 'intra_flow_ratio', 'inter_flow_ratio', 'g', 'g_rel').
+#' @param y_var Name of the y-axis variable to plot (one of: 'mean', 'min', 'median', 'max', 'intra_flow_ratio', 'inter_flow_ratio', 'g', 'relative_g').
 #' @return A plot.
 #' @export
 plot_diagnosis <- function(diagnosis_data, y_var) {
@@ -42,11 +42,11 @@ plot_diagnosis <- function(diagnosis_data, y_var) {
          legend = c("Relative", "Absolute", "Significant Modularity (0.3–0.7)"),
          col = c("blue", "red", rgb(173, 216, 230, maxColorValue = 255)),
          lty = c(1, 1, NA), pch = c(NA, NA, 15),
-         pt.cex = 1.5, bty = "n", y.intersp=1.5)
+         pt.cex = 1.2, bty = "n", y.intersp=1.2, cex=0.9)
   } else {
   # Add a legend
   legend("topleft", legend = c("Relative", "Absolute"),
-       col = c("blue", "red"), lty = 1)
+       col = c("blue", "red"), lty = 1, cex=0.9)
   }
 }
 
@@ -72,7 +72,7 @@ flowbca_diagnosis <- function(flow_input, is_directed=TRUE){
     dg_unit_set <- lapply(dg_data, \(x) x[['unit_set']][, c('round', 'g')]) |>
                     lapply(\(x) x[!is.na(x$g), ]) |>
                     lapply(\(x) { x$round <- as.numeric(x$round); x }) |>
-                    lapply(\(x) { x$g_rel <- (x$g / max(x$g)); x})
+                    lapply(\(x) { x$relative_g <- (x$g / max(x$g)); x})
     dg_stat <- lapply(dg_data, \(x) flowbca_stat(x[['F_matrix_history']]))
     dg_moduality <- lapply(dg_data, \(x) flowbca_modularity(x[['unit_set']],x[['F_matrix_history']]))
     
@@ -81,10 +81,10 @@ flowbca_diagnosis <- function(flow_input, is_directed=TRUE){
     diag_par <- par(mfrow=c(2,2), mar = c(4, 4, 2, 1), oma = c(0, 0, 2, 0), cex=0.8)
     on.exit(par(diag_par))
     plot_diagnosis(diagnosis_stat, 'mean')
-    plot_diagnosis(diagnosis_stat, 'g_rel')
+    plot_diagnosis(diagnosis_stat, 'relative_g')
     plot_diagnosis(diagnosis_stat, 'intra_flow_ratio')
     plot_diagnosis(diagnosis_stat, 'modularity')
     
     invisible(diagnosis_stat)
-    
+    return(diagnosis_stat)
 }
