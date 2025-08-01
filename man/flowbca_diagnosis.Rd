@@ -4,12 +4,14 @@
 \alias{flowbca_diagnosis}
 \title{Flow-based Community Analysis Diagnosis}
 \usage{
-flowbca_diagnosis(flow_input, is_directed = TRUE)
+flowbca_diagnosis(flow_input, is_directed = TRUE, data_name = NULL)
 }
 \arguments{
 \item{flow_input}{The input flow data.}
 
-\item{is_directed}{A logical value indicating whether the graph is directed.}
+\item{is_directed}{A logical value indicating whether the graph is directed}
+
+\item{data_name}{The name of the data to display in the plot. If NULL, the name of the flow_input object is used.}
 }
 \value{
 A list containing the diagnosis statistics.

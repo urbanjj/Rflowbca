@@ -6,12 +6,14 @@
 \usage{
 flowbca(
   flow_input,
-  q = 0,
-  k = 1,
   opt_f = 1,
-  la = 1.1,
-  lw = 1.1,
-  lm = 1.1,
+  q = NULL,
+  k = NULL,
+  la = NULL,
+  lw = NULL,
+  lm = NULL,
+  smaller = NULL,
+  non_zero = NULL,
   save_k = FALSE
 )
 }
@@ -20,18 +22,18 @@ flowbca(
 and subsequent columns represent the flows to destination units. The destination
 columns must be in the same order as the source unit rows.}
 
+\item{opt_f}{An integer specifying the optimization function:
+1: Directed relative flows (default)
+2: Undirected relative flows
+3: Directed absolute flows
+4: Undirected absolute flows}
+
 \item{q}{A numeric flow threshold (can be relative or absolute) that will
 adjust the default stopping criterion. The algorithm stops if the maximum
 flow for merging is below this value. Defaults to 0.}
 
 \item{k}{An integer specifying the desired number of distinct clusters. The
 algorithm stops when this number of clusters is reached. Defaults to 1.}
-
-\item{opt_f}{An integer specifying the optimization function:
-1: Directed relative flows (default)
-2: Undirected relative flows
-3: Directed absolute flows
-4: Undirected absolute flows}
 
 \item{la}{A numeric value for the average of the internal relative flows of all
 clusters. The algorithm terminates if the calculated average (La) exceeds
@@ -45,13 +47,26 @@ of all clusters. The algorithm terminates if the calculated weighted average
 terminates if the calculated minimum (Lm) exceeds this value. Defaults to
 1.1 (effectively off).}
 
-\item{save_k}{Return list of matrices}
+\item{smaller}{A numeric value between 0 and 1. If the destination unit's
+inter-flow is smaller than the source unit's inter-flow multiplied by this
+ratio, the merge is stopped. Defaults to NULL (off).
+Regardless of the value of opt_f, the inter-flow size is evaluated based on
+absolute values.}
+
+\item{non_zero}{A logical value. If TRUE, the algorithm stops when all potential
+source units have non-zero inter-flows. Defaults to FALSE.}
+
+\item{save_k}{Specifies whether to return the F_matrix and C_matrix for all
+iterations. Defaults to FALSE.}
 }
 \value{
-A list containing two data frames:
+A list containing:
 \itemize{
-\item \code{unit_set}: Details of the final cluster assignment for each original unit.
+\item \code{unit_set}: Details of cluster assignment for each unit.
 \item \code{cluster_set}: Statistics for the final clusters.
+\item \code{F_matrix}: The final aggregated flow matrix.
+\item \code{F_matrix_history}: (Optional) A list of matrices from each clustering round.
+\item \code{C_matrix_history}: (Optional) A list of transformation matrices.
 }
 }
 \description{

@@ -9,7 +9,7 @@ plot_diagnosis(diagnosis_data, y_var)
 \arguments{
 \item{diagnosis_data}{A list containing relative and absolute data.}
 
-\item{y_var}{Name of the y-axis variable to plot (one of: 'mean', 'min', 'median', 'max', 'intra_flow_ratio', 'inter_flow_ratio', 'g', 'g_rel').}
+\item{y_var}{Name of the y-axis variable to plot (one of: 'mean', 'min', 'median', 'max', 'intra_flow_ratio', 'inter_flow_ratio', 'g', 'relative_g').}
 }
 \value{
 A plot.

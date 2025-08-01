@@ -5,7 +5,7 @@
 \title{Create a GIF Animation of the Clustering Process}
 \usage{
 flowbca_ani(
-  flowbca_gis,
+  flowbca_gis_layer,
   unit_set,
   width = 1000,
   filenm = "flowbca_animation.gif",
@@ -13,9 +13,6 @@ flowbca_ani(
 )
 }
 \arguments{
-\item{flowbca_gis}{A named list of \code{sf} objects, typically the output from the
-\code{flowbca_gis} function.}
-
 \item{unit_set}{A data frame from the \code{flowbca} result, containing details
 about the merges, including \code{round}, \code{sourceunit}, and \code{clusterid}.}
 
@@ -26,6 +23,9 @@ automatically to maintain the aspect ratio. Defaults to 1000.}
 
 \item{keep_frames}{A logical value. If \code{TRUE}, the individual PNG frames used to
 create the GIF are kept in a sub-directory. Defaults to \code{FALSE}.}
+
+\item{flowbca_gis}{A named list of \code{sf} objects, typically the output from the
+\code{flowbca_gis_layer} function.}
 }
 \value{
 This function does not return a value but writes a GIF file to the specified

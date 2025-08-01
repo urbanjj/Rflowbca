@@ -170,7 +170,7 @@ This is the main function that runs the clustering algorithm. It follows the log
 ```{r flowbca-example, cache=TRUE}
 # Run clustering until the minimum internal relative flow (lm) is at least 0.1 (10%).
 # save_k=TRUE is important to retain data for subsequent analysis functions.
-bca_result <- flowbca(flow_input, lm = 0.1, save_k = TRUE)
+bca_result <- flowbca(flow_input, non_zero=TRUE, save_k = TRUE)
 
 # The result is a list containing:
 # 1. unit_set: Details of cluster assignment for each unit.

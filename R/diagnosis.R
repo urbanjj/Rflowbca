@@ -55,10 +55,14 @@ plot_diagnosis <- function(diagnosis_data, y_var) {
 #' This function performs a diagnosis of the flow-based community analysis.
 #'
 #' @param flow_input The input flow data.
-#' @param is_directed A logical value indicating whether the graph is directed.
+#' @param is_directed A logical value indicating whether the graph is directed
+#' @param data_name The name of the data to display in the plot. If NULL, the name of the flow_input object is used.
 #' @return A list containing the diagnosis statistics.
 #' @export
-flowbca_diagnosis <- function(flow_input, is_directed=TRUE){
+flowbca_diagnosis <- function(flow_input, is_directed=TRUE, data_name=NULL){
+    if (is.null(data_name)) {
+        data_name <- deparse(substitute(flow_input)) 
+    }
     if(is_directed==TRUE){
         dg_data <- list(flowbca(flow_input,opt_f=1,save_k=TRUE),
                         flowbca(flow_input,opt_f=3,save_k=TRUE))
@@ -84,6 +88,7 @@ flowbca_diagnosis <- function(flow_input, is_directed=TRUE){
     plot_diagnosis(diagnosis_stat, 'relative_g')
     plot_diagnosis(diagnosis_stat, 'intra_flow_ratio')
     plot_diagnosis(diagnosis_stat, 'modularity')
+    mtext(paste0("Diagnosis: ", data_name), outer=TRUE, cex=1.5, line=0)
     
     invisible(diagnosis_stat)
     return(diagnosis_stat)

@@ -8,6 +8,11 @@
 #' @param flow_input A data frame where the first column contains source unit identifiers
 #'   and subsequent columns represent the flows to destination units. The destination
 #'   columns must be in the same order as the source unit rows.
+#' @param opt_f An integer specifying the optimization function:
+#'   1: Directed relative flows (default)
+#'   2: Undirected relative flows
+#'   3: Directed absolute flows
+#'   4: Undirected absolute flows
 #' @param q A numeric flow threshold (can be relative or absolute) that will
 #'   adjust the default stopping criterion. The algorithm stops if the maximum
 #'   flow for merging is below this value. Defaults to 0.
@@ -22,21 +27,37 @@
 #' @param lm A numeric value for the minimum internal relative flow. The algorithm
 #'   terminates if the calculated minimum (Lm) exceeds this value. Defaults to
 #'   1.1 (effectively off).
-#' @param opt_f An integer specifying the optimization function:
-#'   1: Directed relative flows (default)
-#'   2: Undirected relative flows
-#'   3: Directed absolute flows
-#'   4: Undirected absolute flows
-#' 
-#' @param save_k Return list of matrices
+#' @param smaller A numeric value between 0 and 1. If the destination unit's
+#'   inter-flow is smaller than the source unit's inter-flow multiplied by this
+#'   ratio, the merge is stopped. Defaults to NULL (off). 
+#'   Regardless of the value of opt_f, the inter-flow size is evaluated based on
+#'   absolute values.
+#' @param non_zero A logical value. If TRUE, the algorithm stops when all potential
+#'   source units have non-zero inter-flows. Defaults to FALSE.
+#' @param save_k Specifies whether to return the F_matrix and C_matrix for all
+#'   iterations. Defaults to FALSE.
 #'
-#' @return A list containing two data frames:
-#'   - `unit_set`: Details of the final cluster assignment for each original unit.
+#' @return A list containing:
+#'   - `unit_set`: Details of cluster assignment for each unit.
 #'   - `cluster_set`: Statistics for the final clusters.
+#'   - `F_matrix`: The final aggregated flow matrix.
+#'   - `F_matrix_history`: (Optional) A list of matrices from each clustering round.
+#'   - `C_matrix_history`: (Optional) A list of transformation matrices.
 #' 
 #' @importFrom stats weighted.mean
 #' @export
-flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm = 1.1, save_k = FALSE) {
+flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = NULL, lm = NULL, smaller = NULL, non_zero = NULL, save_k = FALSE) {
+
+  # --- 0. Stop condition validation ---
+  stop_conditions <- c(!is.null(q), !is.null(k), !is.null(la), !is.null(lw), !is.null(lm), !is.null(smaller), !is.null(non_zero))
+  if (sum(stop_conditions) > 1) {
+    stop("Only one stopping condition (q, k, la, lw, lm, smaller, or non_zero) can be specified at a time.")
+  }
+
+  # Set default values if no stop condition is provided
+  if (sum(stop_conditions) == 0) {
+    k <- 1
+  }
 
   # --- 1. Initial Setup ---
   source_units <- flow_input[[1]]
@@ -60,7 +81,7 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
   if (nrow(F_matrix) != ncol(F_matrix)) {
     stop("The number of source units must equal the number of destination units.")
   }
-  if (k < 1 || k > nrow(F_matrix)) {
+  if (!is.null(k) && (k < 1 || k > nrow(F_matrix))) {
     stop(paste("k must be between 1 and", nrow(F_matrix)))
   }
 
@@ -70,8 +91,19 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
   
   # --- 2. Main Clustering Loop ---
   first_try <- TRUE
-  while (nrow(F_matrix) > k) {
+  while (TRUE) {
     
+    if (!is.null(k) && nrow(F_matrix) <= k) {
+      message("Stopping: The number of units in the F_matrix is less than k.")
+      break
+    }
+
+    # --- 2z. Check custom stopping conditions ---
+    if (isTRUE(non_zero) && all(diag(F_matrix) > 0)) {
+      message("Stopping: All source units have non-zero inter-flows.")
+      break
+    }
+
     K <- nrow(F_matrix)
     current_ids <- rownames(F_matrix)
 
@@ -103,7 +135,7 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
     # --- 2b. Identify Units to Merge (r and s) ---
     max_flow <- max(search_matrix, na.rm = TRUE)
     
-    if (max_flow < q) {
+    if (!is.null(q) && max_flow < q) {
       message("Stopping: Maximum flow is below threshold q.")
       break
     }
@@ -170,8 +202,21 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
       s_idx <- indices[1, "col"]
     }
 
+    # --- 2z. Check smaller condition ---
+    if (!is.null(smaller)) {
+      if (smaller < 0 || smaller > 1) {
+        warning("Warning: 'smaller' should be between 0 and 1.")
+      }
+      internal_r <- F_matrix[r_idx, r_idx]
+      internal_s <- F_matrix[s_idx, s_idx]
+      if (internal_s < internal_r * smaller) {
+        message("Stopping: Destination inter-flow is smaller than source inter-flow * ratio.")
+        break
+      }
+    }
+
     # --- 2d. Check Other Stopping Conditions (la, lw, lm) ---
-    if (la < 1.1 || lw < 1.1 || lm < 1.1) {
+    if (!is.null(la) || !is.null(lw) || !is.null(lm)) {
       row_flows_stop <- rowSums(F_matrix)
       internal_flows <- diag(F_matrix) / row_flows_stop
       internal_flows[is.nan(internal_flows) | is.infinite(internal_flows)] <- 0
@@ -180,7 +225,7 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
       Lw <- weighted.mean(internal_flows, row_flows_stop, na.rm = TRUE)
       Lm <- min(internal_flows, na.rm = TRUE)
       
-      if (la <= La || lw <= Lw || lm <= Lm) {
+      if ((!is.null(la) && la <= La) || (!is.null(lw) && lw <= Lw) || (!is.null(lm) && lm <= Lm)) {
         message("Stopping: Condition (la, lw, or lm) met.")
         break
       }
@@ -228,24 +273,37 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
   # --- 3a. Create unit_set ---
   unit_set <- data.frame(
     sourceunit = source_units,
-    clusterid = as.character(source_units),
     destinationunit = NA,
+    clusterid = as.character(source_units),
     g = NA,
     round = NA,
     stringsAsFactors = FALSE
   )
   
   for (merge in rev(merge_history)) {
-    is_merged_unit <- unit_set$clusterid == merge$r
-    unit_set$clusterid[is_merged_unit] <- merge$s
-    
     is_source_unit <- unit_set$sourceunit == merge$r
     unit_set$destinationunit[is_source_unit & is.na(unit_set$destinationunit)] <- merge$s
     unit_set$g[is_source_unit & is.na(unit_set$g)] <- merge$q
     unit_set$round[is_source_unit & is.na(unit_set$round)] <- merge$round
   }
   
+  # Find the final cluster for each unit
+  for (i in 1:nrow(unit_set)) {
+    current_unit <- unit_set$sourceunit[i]
+    dest <- unit_set$destinationunit[i]
+    while(!is.na(dest)) {
+      current_unit <- dest
+      dest_row <- unit_set[unit_set$sourceunit == current_unit, ]
+      dest <- dest_row$destinationunit
+    }
+    unit_set$clusterid[i] <- current_unit
+  }
+
   unit_set$core <- ifelse(is.na(unit_set$g), 1, 0)
+   
+  unit_set_order <- unit_set[order(unit_set$g, decreasing = TRUE, na.last = TRUE), ]
+
+  unit_set_h <- build_hierarchy(unit_set_order)
   
   # --- 3b. Create cluster_set ---
   final_clusters <- rownames(F_matrix)
@@ -255,11 +313,13 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
   
   internal_relative <- ifelse(row_flows == 0, 0, internal / row_flows)
   
-  F_matrix_history <- lapply(F_matrix_history, \(x) x[[1]])
-  names(F_matrix_history) <- (max(unit_set$round,na.rm=TRUE)+1):min(unit_set$round,na.rm=TRUE)
+  if (length(F_matrix_history) > 0) {
+    F_matrix_history <- lapply(F_matrix_history, \(x) x[[1]])
+    names(F_matrix_history) <- (max(unit_set$round,na.rm=TRUE)+1):min(unit_set$round,na.rm=TRUE)
 
-  C_matrix_history <- lapply(C_matrix_history, \(x) x[[1]])
-  names(C_matrix_history) <- max(unit_set$round,na.rm=TRUE):min(unit_set$round,na.rm=TRUE)
+    C_matrix_history <- lapply(C_matrix_history, \(x) x[[1]])
+    names(C_matrix_history) <- max(unit_set$round,na.rm=TRUE):min(unit_set$round,na.rm=TRUE)
+  }
 
   cluster_set <- data.frame(
     clusterid = final_clusters,
@@ -277,11 +337,11 @@ flowbca <- function(flow_input, q = 0, k = 1, opt_f = 1, la = 1.1, lw = 1.1, lm 
   }
 
   if(save_k == TRUE) {
-    return(list(unit_set = unit_set, cluster_set = cluster_set,
+    return(list(unit_set = unit_set_h, cluster_set = cluster_set,
             F_matrix=F_matrix, F_matrix_history = F_matrix_history,
             C_matrix_history = C_matrix_history))
   } else {
-    return(list(unit_set = unit_set, cluster_set = cluster_set,
+    return(list(unit_set = unit_set_h, cluster_set = cluster_set,
             F_matrix=F_matrix))
   }
 }

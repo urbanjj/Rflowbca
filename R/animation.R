@@ -5,7 +5,7 @@
 #' process and combines them into a single animated GIF.
 #'
 #' @param flowbca_gis A named list of `sf` objects, typically the output from the
-#'   `flowbca_gis` function.
+#'   `flowbca_gis_layer` function.
 #' @param unit_set A data frame from the `flowbca` result, containing details
 #'   about the merges, including `round`, `sourceunit`, and `clusterid`.
 #' @param width The width of the output GIF in pixels. The height is calculated
@@ -20,7 +20,7 @@
 #' @importFrom grDevices colors png dev.off
 #' @importFrom graphics par text points
 #' @export
-flowbca_ani <- function(flowbca_gis, unit_set, width = 1000,
+flowbca_ani <- function(flowbca_gis_layer, unit_set, width = 1000,
                         filenm = 'flowbca_animation.gif', keep_frames = FALSE) {
 
   # --- Package Checks ---

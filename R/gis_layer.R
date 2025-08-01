@@ -16,7 +16,7 @@
 #' @note This function requires the `sf` package.
 #' @importFrom stats aggregate
 #' @export
-flowbca_gis <- function(unit_set, unit_gis, join_col = "sourceunit") {
+flowbca_gis_layer <- function(unit_set, unit_gis, join_col = "sourceunit") {
 
   # --- 1. Input Validation & Column Name Parsing ---
   if (!requireNamespace("sf", quietly = TRUE)) {
