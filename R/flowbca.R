@@ -302,8 +302,6 @@ flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = N
   unit_set$core <- ifelse(is.na(unit_set$g), 1, 0)
    
   unit_set_order <- unit_set[order(unit_set$g, decreasing = TRUE, na.last = TRUE), ]
-
-  unit_set_h <- build_hierarchy(unit_set_order)
   
   # --- 3b. Create cluster_set ---
   final_clusters <- rownames(F_matrix)
@@ -337,11 +335,11 @@ flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = N
   }
 
   if(save_k == TRUE) {
-    return(list(unit_set = unit_set_h, cluster_set = cluster_set,
+    return(list(unit_set = unit_set, cluster_set = cluster_set,
             F_matrix=F_matrix, F_matrix_history = F_matrix_history,
             C_matrix_history = C_matrix_history))
   } else {
-    return(list(unit_set = unit_set_h, cluster_set = cluster_set,
+    return(list(unit_set = unit_set, cluster_set = cluster_set,
             F_matrix=F_matrix))
   }
 }
