@@ -122,7 +122,7 @@ The package includes two datasets for the Si-Gun administrative units of South K
 -   **`OD_SiGun`**: Origin-Destination (OD) data representing passenger flow between 159 Si-Gun units.
 -   **`KR_SiGun`**: An `sf` object containing the administrative boundaries for the 159 Si-Gun units.
 
-Before using the data, it needs to be prepared. The `flowbca()` function requires a `data.frame` where the first column contains unique source unit IDs, and the remaining column names are the corresponding destination unit IDs.
+Before using the dh=ata, it needs to be prepared. The `flowbca()` function requires a `data.frame` where the first column contains unique source unit IDs, and the remaining column names are the corresponding destination unit IDs.
 
 ```{r prepare-data, echo=TRUE}
 library(flowbcaR)

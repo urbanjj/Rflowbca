@@ -335,11 +335,11 @@ flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = N
   }
 
   if(save_k == TRUE) {
-    return(list(unit_set = unit_set, cluster_set = cluster_set,
+    return(list(unit_set = unit_set_order, cluster_set = cluster_set,
             F_matrix=F_matrix, F_matrix_history = F_matrix_history,
             C_matrix_history = C_matrix_history))
   } else {
-    return(list(unit_set = unit_set, cluster_set = cluster_set,
+    return(list(unit_set = unit_set_order, cluster_set = cluster_set,
             F_matrix=F_matrix))
   }
 }
