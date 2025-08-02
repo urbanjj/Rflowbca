@@ -92,7 +92,7 @@ flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", filenm = 'f
   img <- magick::image_read(filenm)
   plot(img)
 
-  gis_list <- list(cluster_gis = cluster_gis, core_gis = core_gis)
+  gis_list <- list(img=img,cluster_gis = cluster_gis, core_gis = core_gis)
   return(gis_list)
 }
 

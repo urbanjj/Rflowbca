@@ -25,7 +25,7 @@ flowbca_modularity <- function(unit_set, F_matrix_history){
 
   # --- Main Logic ---
   F_matrix_1 <- F_matrix_history[[1]]
-  cluster_history <- cluster_set(unit_set)
+  cluster_history <- cluster_set(unit_set[match(colnames(F_matrix_1),unit_set$sourceunit),])
   M_matrix <- CalcModMatrix(F_matrix_1, is_directed = TRUE, modularity_resolution = 1)
 
   v_modularity <- unlist(lapply(cluster_history, function(x) {

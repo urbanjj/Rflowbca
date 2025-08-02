@@ -301,7 +301,7 @@ flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = N
 
   unit_set$core <- ifelse(is.na(unit_set$g), 1, 0)
    
-  unit_set_order <- unit_set[order(unit_set$g, decreasing = TRUE, na.last = TRUE), ]
+  unit_set_order <- unit_set[order(unit_set$round, decreasing = TRUE, na.last = TRUE), ]
   
   # --- 3b. Create cluster_set ---
   final_clusters <- rownames(F_matrix)

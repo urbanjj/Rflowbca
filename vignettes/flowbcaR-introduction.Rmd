@@ -1,6 +1,10 @@
 ---
-title: "README.md"
-output: md_document
+title: "Introduction to flowbcaR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to flowbcaR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -8,10 +12,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-devtools::load_all()
+library(flowbcaR)
+library(sf)
 ```
 
-# Introduction to flowbcaR
 ### *Jongjin Yun (2025-08-02)*
 
 The `flowbcaR` package provides a robust implementation of a flow-based clustering algorithm, originally developed by Meekes and Hassink (2018) as a Stata package. It is specifically designed to delineate functional regions (e.g., labor market areas, travel-to-work areas) by analyzing origin-destination (OD) flow data. The core function, `flowbca`, iteratively aggregates units based on the strength of the flows between them, using a hierarchical clustering approach with detailed tie-breaking rules to ensure deterministic and logical outcomes.
@@ -104,7 +108,7 @@ diagram_svg <- export_svg(diagram)
 writeLines(diagram_svg, "workflow.svg")
 ```
 ```{r workflow_plot, echo=FALSE, out.width="100%", fig.align = 'center'}
-knitr::include_graphics("./man/figures/workflow.svg")
+knitr::include_graphics("../man/figures/workflow.svg")
 ```
 
 A typical workflow involves these steps:
@@ -169,7 +173,6 @@ This is the main function that runs the clustering algorithm. It follows the log
     -   `save_k`: Specifies whether to return the F_matrix and C_matrix for all iterations. Defaults to FALSE.
 
 -   **Usage**:
-
 ```{r flowbca-example, cache=TRUE}
 # Run clustering until all potential source units have non-zero inter-flows.
 # save_k=TRUE is important to retain data for subsequent analysis functions.
@@ -205,7 +208,6 @@ These functions provide a statistical summary of cluster cohesion at each step o
     -   `flowbca_plot` visualizes these statistics, making it easy to see how cohesion changes as clusters merge.
     It automatically finds and annotates the intersection point where intra-cluster flow surpasses inter-cluster flow, a useful heuristic for identifying a natural number of clusters.
 -   **Usage**:
-
 ```{r stat-plot-example, out.width="90%", fig.width=10, fig.height=5, fig.align = 'center'}
 # Calculate internal flow statistics from the matrix history
 stat_data <- flowbca_stat(bca_result$F_matrix_history)
@@ -231,7 +233,6 @@ W_{ij} - \frac{s_i^{\text{out}} s_j^{\text{in}}}{W} \right) \delta(C_i, C_j)
 $$
 
 - Where:
-
     -   $W_{ij}$ is the weight of the directed edge from node $i$ to node $j$.
     -   $s_i^{out} = \sum_j W_{ij}$ is the total outgoing weight from node $i$ (out-degree).
     -   $s_j^{in} = \sum_i W_{ij}$ is the total incoming weight to node $j$ (in-degree).
@@ -243,7 +244,6 @@ $$
     -   Implements the standard modularity formula for directed networks.
     -   Higher modularity values (typically in the range of 0.3 to 0.7) indicate a strong community structure, where flows are dense within clusters but sparse between them.
 -   **Usage**:
-
 ```{r modularity-example, out.width="60%", fig.width=8,fig.height=6, fig.align = 'center'}
 # Calculate modularity for each round
 modularity_data <- flowbca_modularity(bca_result$unit_set, bca_result$F_matrix_history)
@@ -269,7 +269,6 @@ This function offers a convenient way to run and directly compare clustering str
     -   Generates a 2x2 plot comparing key metrics: mean internal flow, relative `g` value (the optimization score), intra-flow ratio, and modularity.
     - The relative g value represents the proportion of each g compared to the maximum g value across all steps.
 -   **Usage**:
-
 ```{r diagnosis-example, out.width="90%", fig.width=8,fig.height=7, fig.align = 'center'}
 # Perform diagnosis for a directed graph
 # This function calls flowbca internally, so it may take a moment
@@ -277,7 +276,6 @@ diagnosis_stat <- flowbca_diagnosis(flow_input, is_directed = TRUE)
 # The function returns the statistics used for plotting
 str(diagnosis_stat)
 ```
-
 -   **Pros**
     -   Saves time by automating the comparison of different `flowbca` runs.
     -   The plots provide a comprehensive dashboard to decide which clustering approach (`relative` vs. `absolute`) is more appropriate for the data and to identify an optimal number of clusters. The "Significant Modularity" zone (0.3-0.7) is highlighted to guide interpretation.
@@ -294,7 +292,6 @@ Enriches the `unit_set` output from `flowbca` by adding explicit hierarchical in
     -   Generates a clear, slash-separated path string for each unit (e.g., `TopCluster/SubCluster/Unit`).
     -   Calculates the hierarchy level (`h_level`) for each unit.
 -   **Usage**:
-
 ```{r hierarchy-example}
 # Build the hierarchy path from the result
 hierarchy_data <- build_hierarchy(bca_result$unit_set)
@@ -306,7 +303,6 @@ head(hierarchy_data[, c("sourceunit", "clusterid", "hierarchy", "h_level")])
 -   **Pros**:
     -   Excellent for understanding the nested structure of the clusters.
     -   The output can be easily used with other packages like `data.tree` for visualization.
-
 
 ```{r data-tree-example, message=FALSE}
 library(data.tree)
@@ -335,7 +331,6 @@ This function bridges the gap between the statistical clustering results and the
     -   Generates a list of `sf` objects, one for each round of the clustering, with polygons dissolved according to the merge history.
     -   Includes a helper function to remove internal holes from the merged polygons, resulting in cleaner maps.
 -   **Usage**:
-
 ```{r gis-example, message=FALSE, warning=FALSE, out.width="90%", fig.width=10,fig.height=10, fig.align = 'center'}
 # Generate merged spatial layers for each round.
 # This can take a moment for many units.
@@ -376,7 +371,7 @@ flowbca_ani(
 ```
 
 ```{r gif_plot, echo=FALSE, out.width="80%", fig.align = 'center'}
-knitr::include_graphics("./man/figures/flowbca_clustering.gif")
+knitr::include_graphics("../man/figures/flowbca_clustering.gif")
 ```
 
 -   **Pros**
