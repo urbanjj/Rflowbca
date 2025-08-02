@@ -125,7 +125,6 @@ The package includes two datasets for the Si-Gun administrative units of South K
 Before using the dh=ata, it needs to be prepared. The `flowbca()` function requires a `data.frame` where the first column contains unique source unit IDs, and the remaining column names are the corresponding destination unit IDs.
 
 ```{r prepare-data, echo=TRUE}
-library(flowbcaR)
 library(sf)
 
 # Load the sample datasets

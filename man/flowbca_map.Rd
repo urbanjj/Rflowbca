@@ -13,7 +13,7 @@ flowbca_map(
 )
 }
 \arguments{
-\item{unit_set}{A data frame from the \code{flowbca} result.}
+\item{unit_set}{A data frame from the \code{flowbca} result. Must contain \code{h_parent} and \code{h_level} from \code{build_hierarchy()}.}
 
 \item{unit_gis}{An \code{sf} object with polygons corresponding to the units.}
 
