@@ -4,7 +4,7 @@
 \alias{flowbca_modularity}
 \title{Calculate Modularity for each step of flowbca}
 \usage{
-flowbca_modularity(unit_set, F_matrix_history)
+flowbca_modularity(unit_set, F_matrix_history, resolution = 1)
 }
 \arguments{
 \item{unit_set}{A data frame from the result of flowbca function.
@@ -12,6 +12,8 @@ It must contain 'sourceunit', 'destinationunit', and 'round' columns.}
 
 \item{F_matrix_history}{A list of flow matrices from the flowbca process.
 The first matrix in the list (the original OD matrix) is used for the calculation.}
+
+\item{resolution}{A numeric value for the resolution parameter (gamma). Default is 1.0.}
 }
 \value{
 A data frame with two columns: 'round' and 'modularity',

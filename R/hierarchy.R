@@ -288,30 +288,6 @@ hierarchy_cluster <- function(cluster_tree){
   return(hierarchy_cluster)
 }
 
-#' Find the Parent of a Given Node (Helper)
-#'
-#' Recursively searches the entire cluster tree to find the immediate parent
-#' of a specified target node.
-#'
-#' @param node The current node or sub-tree (list) to search in.
-#' @param target_name The name of the node whose parent is to be found.
-#' @param parent The name of the parent in the current recursion level (internal use).
-#' @return The name of the parent node (character) or NULL if not found.
-#' @noRd
-get_parent_node <- function(node, target_name, parent = NULL) {
-  for (name in names(node)) {
-    if (name == target_name) {
-      return(parent)
-    }
-    child <- node[[name]]
-    if (is.list(child) && length(child) > 0) {
-      found <- get_parent_node(child, target_name, name)
-      if (!is.null(found)) return(found)
-    }
-  }
-  return(NULL)
-}
-
 # #' Extract and Organize Clusters at a Specific Hierarchy Level
 # #'
 # #' This function identifies clusters at a given hierarchy level and organizes them

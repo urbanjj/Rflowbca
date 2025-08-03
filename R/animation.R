@@ -4,13 +4,14 @@
 #' from a `flowbca` analysis. It creates a frame for each round of the clustering
 #' process and combines them into a single animated GIF.
 #'
-#' @param flowbca_gis A named list of `sf` objects, typically the output from the
+#' @param flowbca_gis_layer A named list of `sf` objects, typically the output from the
 #'   `flowbca_gis_layer` function.
 #' @param unit_set A data frame from the `flowbca` result, containing details
 #'   about the merges, including `round`, `sourceunit`, and `clusterid`.
 #' @param width The width of the output GIF in pixels. The height is calculated
 #'   automatically to maintain the aspect ratio. Defaults to 1000.
-#' @param filenm The file name for the output GIF. Defaults to `'flowbca_animation.gif'`.
+#' @param file_nm The file name for the output GIF. "The default value is set to
+#'   the name of unit_set, but the user can specify it (e.g., flowbca_animation.gif)."
 #' @param keep_frames A logical value. If `TRUE`, the individual PNG frames used to
 #'   create the GIF are kept in a sub-directory. Defaults to `FALSE`.
 #' @return This function does not return a value but writes a GIF file to the specified
@@ -21,25 +22,33 @@
 #' @importFrom graphics par text points
 #' @export
 flowbca_ani <- function(flowbca_gis_layer, unit_set, width = 1000,
-                        filenm = 'flowbca_animation.gif', keep_frames = FALSE) {
+                        file_nm = NULL, keep_frames = FALSE) {
 
   # --- Package Checks ---
   if (!requireNamespace("sf", quietly = TRUE)) stop("Package 'sf' is required.")
   if (!requireNamespace("magick", quietly = TRUE)) stop("Package 'magick' is required.")
   use_ragg <- requireNamespace("ragg", quietly = TRUE)
   
+  if ((!is.null(file_nm) || nchar(as.character(file_nm)) != 0) & grepl('\\.gif$', file_nm) == FALSE) {
+    stop('The file name is required to have the .gif extension.')
+  }
+
+  if (is.null(file_nm) || nchar(as.character(file_nm)) == 0) {
+    file_nm <- paste0(deparse(substitute(unit_set)),'_ani.gif')
+  }
+
   # --- Initial Setup ---
   unit_set$round <- as.character(unit_set$round)
-  round_names <- names(flowbca_gis)
-  gis_base <- flowbca_gis[[1]]
+  round_names <- names(flowbca_gis_layer)
+  gis_base <- flowbca_gis_layer[[1]]
   sourceunit <- gis_base$sourceunit
 
   g_colour <- sample(colors(), length(sourceunit))
   col_db <- data.frame(sourceunit, g_colour)
-  gis_png <- lapply(flowbca_gis, \(x) merge(x, col_db, by = 'sourceunit', all.x = TRUE))
+  gis_png <- lapply(flowbca_gis_layer, \(x) merge(x, col_db, by = 'sourceunit', all.x = TRUE))
 
   gis_base_center <- sf::st_centroid(gis_base)
-  sourceunit_filter <- lapply(flowbca_gis, \(x) sf::st_drop_geometry(x)$sourceunit)
+  sourceunit_filter <- lapply(flowbca_gis_layer, \(x) sf::st_drop_geometry(x)$sourceunit)
   gis_center <- lapply(sourceunit_filter, \(x) gis_base_center[gis_base_center$sourceunit %in% x, ])
 
   bbox <- sf::st_bbox(gis_base)
@@ -55,7 +64,7 @@ flowbca_ani <- function(flowbca_gis_layer, unit_set, width = 1000,
   lwd_scaler <- 0.0005 * width + 0.5
 
   # --- Frame Generation Setup ---
-  frame_dir <- paste0(sub("\\.[^.]*$", "", basename(filenm)), "_frames")
+  frame_dir <- paste0(sub("\\.[^.]*$", "", basename(file_nm)), "_frames")
   dir.create(frame_dir, showWarnings = FALSE)
 
   if (keep_frames) {
@@ -104,7 +113,7 @@ flowbca_ani <- function(flowbca_gis_layer, unit_set, width = 1000,
   }
   ani_db <- lapply(frame_files, magick::image_read)
   ani_gif <- magick::image_animate(do.call(c, ani_db), fps = 2, loop = 1)
-  magick::image_write(ani_gif, filenm)
+  magick::image_write(ani_gif, file_nm)
   
-  print(paste("Animation saved to:", filenm))
+  print(paste("Animation saved to:", file_nm))
 }

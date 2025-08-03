@@ -108,19 +108,3 @@ flowbca_gis_layer <- function(unit_set, unit_gis, join_col = "sourceunit") {
   return(Z)
 }
 
-# --- Helper Functions (Internal) ---
-remove_holes <- function(geom) {
-  if (inherits(geom, "POLYGON")) {
-    sf::st_polygon(list(geom[[1]]))
-  } else if (inherits(geom, "MULTIPOLYGON")) {
-    sf::st_multipolygon(lapply(geom, function(p) list(p[[1]])))
-  } else {
-    geom
-  }
-}
-
-remove_holes_sf <- function(sf_obj) {
-  geom <- sf::st_geometry(sf_obj)
-  new_geom <- sf::st_sfc(lapply(geom, remove_holes), crs = sf::st_crs(sf_obj))
-  sf::st_set_geometry(sf_obj, new_geom)
-}

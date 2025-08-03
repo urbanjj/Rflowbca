@@ -5,7 +5,8 @@
 #' @param unit_set A data frame from the `flowbca` result. Must contain `h_parent` and `h_level` from `build_hierarchy()`.
 #' @param unit_gis An `sf` object with polygons corresponding to the units.
 #' @param join_col Specifies the join key columns.
-#' @param filenm The file name for the output image. If NULL, the plot is displayed but not saved.
+#' @param file_nm The file name for the output GIF. "The default value is set to
+#'   the name of unit_set, but the user can specify it (e.g., flowbca_map.png)."
 #' @param width The width of the output image in pixels.
 #' @return A list of `sf` objects for the clusters and core units.
 #' @importFrom grDevices adjustcolor colors dev.off png
@@ -13,7 +14,7 @@
 #' @importFrom sf st_bbox st_centroid st_geometry
 #' @importFrom stats aggregate
 #' @export
-flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", filenm = 'flowbca_map.png', width = 1000) {
+flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", file_nm = NULL, width = 1000) {
 
   # --- Package Checks ---
   if (!requireNamespace("sf", quietly = TRUE)) stop("Package 'sf' is required.")
@@ -28,6 +29,14 @@ flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", filenm = 'f
     unit_gis_id_col <- join_col
   } else {
     stop("'join_col' must be a single string or a single named vector.")
+  }
+
+  if ((!is.null(file_nm) || nchar(as.character(file_nm)) != 0) & grepl('\\.png$', file_nm) == FALSE) {
+    stop('The file name is required to have the .png extension.')
+  }
+
+  if (is.null(file_nm) || nchar(as.character(file_nm)) == 0) {
+    file_nm <- paste0(deparse(substitute(unit_set)),'_map.png')
   }
 
   # required_set_cols <- c(unit_set_id_col, 'clusterid', 'core')
@@ -70,11 +79,11 @@ flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", filenm = 'f
   g_colour <- grDevices::adjustcolor(sample(grDevices::colors(), length(cluster_gis$geometry)), alpha.f = 0.5)
 
   # --- Device Handling ---
-  if (!is.null(filenm)) {
+  if (!is.null(file_nm)) {
     if (use_ragg) {
-      ragg::agg_png(filenm, width = png_width, height = png_height)
+      ragg::agg_png(file_nm, width = png_width, height = png_height)
     } else {
-      grDevices::png(filenm, width = png_width, height = png_height)
+      grDevices::png(file_nm, width = png_width, height = png_height)
     }
   }
 
@@ -85,28 +94,14 @@ flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", filenm = 'f
   plot(cluster_gis$geom, col = g_colour, lwd = 1.25 * lwd_scaler, add = TRUE)
   graphics::points(core_gis_point_xy[,1],core_gis_point_xy[,2], type = 'p', pch = 17, col = 'blue', cex = 2 * cex_scaler)
 
-  if (!is.null(filenm)) {
+  if (!is.null(file_nm)) {
     grDevices::dev.off()
   }
   
-  img <- magick::image_read(filenm)
+  img <- magick::image_read(file_nm)
   plot(img)
 
   gis_list <- list(img=img,cluster_gis = cluster_gis, core_gis = core_gis)
   return(gis_list)
 }
 
-# Helper function from gis.R
-remove_holes_sf <- function(sf_obj) {
-  geom <- sf::st_geometry(sf_obj)
-  new_geom <- sf::st_sfc(lapply(geom, function(geom) {
-    if (inherits(geom, "POLYGON")) {
-      sf::st_polygon(list(geom[[1]]))
-    } else if (inherits(geom, "MULTIPOLYGON")) {
-      sf::st_multipolygon(lapply(geom, function(p) list(p[[1]])))
-    } else {
-      geom
-    }
-  }), crs = sf::st_crs(sf_obj))
-  sf::st_set_geometry(sf_obj, new_geom)
-}

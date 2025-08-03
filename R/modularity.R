@@ -77,6 +77,7 @@ cluster_set <- function(unit_set){
 #' @param is_directed A boolean indicating if the graph is directed (TRUE) or undirected (FALSE).
 #' @param resolution A numeric value for the resolution parameter (gamma). Default is 1.0.
 #' @return A modularity matrix with the same dimensions and names as the input matrix.
+#' @export
 
 CalcModMatrix <- function(input_matrix, is_directed = TRUE, resolution = 1.0) {
 
@@ -143,7 +144,7 @@ CalcModMatrix <- function(input_matrix, is_directed = TRUE, resolution = 1.0) {
 #' @param is_directed A logical value indicating if the network is directed (TRUE) or should be treated as undirected (FALSE).
 #' @param resolution A numeric value for the resolution parameter (gamma). Default is 1.0.
 #' @return A single numeric value representing the modularity score (Q) for the given community partition.
-#' @noRd
+#' @export
 calculate_modularity <- function(input_matrix, communities, is_directed = TRUE, resolution = 1.0) {
 
   # --- Input validation logic start ---
