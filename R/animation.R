@@ -29,13 +29,14 @@ flowbca_ani <- function(flowbca_gis_layer, unit_set, width = 1000,
   if (!requireNamespace("magick", quietly = TRUE)) stop("Package 'magick' is required.")
   use_ragg <- requireNamespace("ragg", quietly = TRUE)
   
-  if ((!is.null(file_nm) || nchar(as.character(file_nm)) != 0) & grepl('\\.gif$', file_nm) == FALSE) {
-    stop('The file name is required to have the .gif extension.')
-  }
-
   if (is.null(file_nm) || nchar(as.character(file_nm)) == 0) {
     file_nm <- paste0(deparse(substitute(unit_set)),'_ani.gif')
   }
+
+  if (grepl('\\.gif$', file_nm) == FALSE) {
+    stop('The file name is required to have the .gif extension.')
+  }
+
 
   # --- Initial Setup ---
   unit_set$round <- as.character(unit_set$round)

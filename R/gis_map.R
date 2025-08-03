@@ -31,12 +31,12 @@ flowbca_map <- function(unit_set, unit_gis, join_col = "sourceunit", file_nm = N
     stop("'join_col' must be a single string or a single named vector.")
   }
 
-  if ((!is.null(file_nm) || nchar(as.character(file_nm)) != 0) & grepl('\\.png$', file_nm) == FALSE) {
-    stop('The file name is required to have the .png extension.')
-  }
-
   if (is.null(file_nm) || nchar(as.character(file_nm)) == 0) {
     file_nm <- paste0(deparse(substitute(unit_set)),'_map.png')
+  }
+
+  if (grepl('\\.png$', file_nm) == FALSE) {
+    stop('The file name is required to have the .png extension.')
   }
 
   # required_set_cols <- c(unit_set_id_col, 'clusterid', 'core')
