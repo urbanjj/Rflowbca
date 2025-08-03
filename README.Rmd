@@ -246,7 +246,7 @@ $$
 
 ```{r modularity-example, out.width="60%", fig.width=8,fig.height=6, fig.align = 'center'}
 # Calculate modularity for each round
-modularity_data <- flowbca_modularity(bca_result$unit_set, bca_result$F_matrix_history)
+modularity_data <- flowbca_modularity(bca_result$unit_set, bca_result$F_matrix_history, resolution=3)
 
 # Plot modularity over rounds
 plot(modularity_data$round, modularity_data$modularity, type='l',

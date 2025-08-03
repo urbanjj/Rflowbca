@@ -133,7 +133,7 @@ flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = N
     diag(search_matrix) <- -Inf 
     
     # --- 2b. Identify Units to Merge (r and s) ---
-    if (is.na(search_matrix) == TRUE) {
+    if (max(search_matrix, na.rm = TRUE) == -Inf) {
       message("Stopping: All values in search_matrix are NA, suggesting that no further clustering is possible as all source units have already been merged.")
       break
     }
