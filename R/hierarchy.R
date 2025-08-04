@@ -133,6 +133,7 @@ build_cluster_tree <- function(unit_set) {
 #' @param unit_set A data frame, typically the `unit_set` from a `build_hierarchy` result.
 #' @param unit_set_hierarchy unit_set d
 #' @return An object of class 'dendrogram'
+#' @export
 build_dendrogram <- function(unit_set) {
 
   nested_list <- build_cluster_tree(unit_set)
