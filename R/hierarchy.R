@@ -131,7 +131,6 @@ build_cluster_tree <- function(unit_set) {
 #' @title Convert a nested list to a dendrogram with labels
 #' @description Converts each hierarchy (name) of a list into branch labels of a dendrogram.
 #' @param unit_set A data frame, typically the `unit_set` from a `build_hierarchy` result.
-#' @param unit_set_hierarchy unit_set d
 #' @return An object of class 'dendrogram'
 #' @export
 build_dendrogram <- function(unit_set) {
@@ -201,8 +200,7 @@ build_dendrogram <- function(unit_set) {
 #' "core" clusters (those with more than one member). It also provides information
 #' about the parent-child relationships between clusters across hierarchical levels.
 #'
-#' @param flowbca_dendrogram A dendogram object, typically
-#'   the output of `build_dendrogram()`.
+#' @param unit_set A data frame, typically the `unit_set` from a `build_hierarchy` result.
 #'
 #' @return
 #' A list containing two named elements:
@@ -218,7 +216,11 @@ build_dendrogram <- function(unit_set) {
 #' }
 #'
 #' @export
-hierarchy_cluster <- function(flowbca_dendrogram){
+hierarchy_cluster <- function(unit_set){
+
+  nested_list <- build_cluster_tree(unit_set)
+
+  flowbca_dendrogram <- build_dendrogram(unit_set)
 
   h <- attributes(flowbca_dendrogram)$height
   h_nm <- paste0('hierarchy_',h:1)
@@ -248,7 +250,7 @@ hierarchy_cluster <- function(flowbca_dendrogram){
     df <- temp_df[temp_df$h_cl %in% multi_member_clusters, ]
 
     # The get_parent_node function is assumed to be defined in the package environment.
-    p1 <- unlist(lapply(df$h_cl, function(x) get_parent_node(cluster_tree, x)))
+    p1 <- unlist(lapply(df$h_cl, function(x) get_parent_node(nested_list, x)))
     cluster_info[[i]] <- cbind(df, upper_h_cl=NA)
     cluster_info[[i]]$upper_h_cl <- p1
 
