@@ -77,11 +77,10 @@ build_hierarchy <- function(data, child_col = "sourceunit", parent_col = "destin
 #' nested list (tree) structure. This is useful for hierarchical analysis or
 #' visualization with tree-based packages.
 #'
-#' @param unit_set A data frame from a `flowbca` result, containing at least
-#'   `sourceunit` and `destinationunit` columns defining the parent-child links.
+#' @param unit_set A data frame, typically the `unit_set` from a `build_hierarchy` result.
 #' @return A named, nested list representing the cluster hierarchy. Each name is a
 #'   node, and its value is a list of its children. Leaf nodes are empty lists.
-#' @export
+#' @noRd
 #' @examples
 #' \dontrun{
 #'   # Assuming 'bca_result' is the output from flowbca()
@@ -131,9 +130,12 @@ build_cluster_tree <- function(unit_set) {
 
 #' @title Convert a nested list to a dendrogram with labels
 #' @description Converts each hierarchy (name) of a list into branch labels of a dendrogram.
-#' @param nested_list Nested list to convert.
+#' @param unit_set A data frame, typically the `unit_set` from a `build_hierarchy` result.
+#' @param unit_set_hierarchy unit_set d
 #' @return An object of class 'dendrogram'
-list_to_dendrogram <- function(nested_list) {
+build_dendrogram <- function(unit_set) {
+
+  nested_list <- build_cluster_tree(unit_set)
   
   # Calculate the maximum depth of the list
   get_depth <- function(x) {
