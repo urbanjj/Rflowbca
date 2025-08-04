@@ -201,9 +201,8 @@ build_dendrogram <- function(unit_set) {
 #' "core" clusters (those with more than one member). It also provides information
 #' about the parent-child relationships between clusters across hierarchical levels.
 #'
-#' @param cluster_tree A nested list representing the cluster hierarchy, typically
-#'   the output of `build_cluster_tree()`. Each list element is a node, and its
-#'   sub-elements are its children.
+#' @param flowbca_dendrogram A dendogram object, typically
+#'   the output of `build_dendrogram()`.
 #'
 #' @return
 #' A list containing two named elements:
@@ -219,22 +218,8 @@ build_dendrogram <- function(unit_set) {
 #' }
 #'
 #' @export
-#' @examples
-#' \dontrun{
-#'   # Assuming 'bca_result' is the output from flowbca()
-#'   unit_set <- bca_result$unit_set
-#'   # First, build the hierarchy tree
-#'   cluster_tree <- build_cluster_tree(unit_set)
-#'   # Now, analyze the clusters at different hierarchy levels
-#'   hierarchical_clusters <- hierarchy_cluster(cluster_tree)
-#'   # View the unit mappings at the first level of the hierarchy cut
-#'   head(hierarchical_clusters$unit_set[[1]])
-#'   # View the parent links for core clusters at the first level
-#'   head(hierarchical_clusters$cluster_info[[1]])
-#' }
-hierarchy_cluster <- function(cluster_tree){
+hierarchy_cluster <- function(flowbca_dendrogram){
 
-  flowbca_dendrogram <- list_to_dendrogram(cluster_tree)
   h <- attributes(flowbca_dendrogram)$height
   h_nm <- paste0('hierarchy_',h:1)
 
