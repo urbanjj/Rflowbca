@@ -289,7 +289,7 @@ flowbca <- function(flow_input, opt_f = 1, q = NULL, k = NULL, la = NULL, lw = N
     is_source_unit <- unit_set$sourceunit == merge$r
     unit_set$destinationunit[is_source_unit & is.na(unit_set$destinationunit)] <- merge$s
     unit_set$g[is_source_unit & is.na(unit_set$g)] <- merge$q
-    unit_set$round[is_source_unit & is.na(unit_set$round)] <- merge$round
+    unit_set$round[is_source_unit & is.na(unit_set$round)] <- (as.numeric(merge$round) - 1)
   }
   
   # Find the final cluster for each unit

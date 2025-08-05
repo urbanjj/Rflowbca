@@ -136,7 +136,7 @@ flowbca_plot <- function(stat_data, upper_bound = NULL) {
   matplot(x = x_values, y = y_values_1, type = plot_type, pch = plot_pch,
           lty = 1, lwd = 2, col = plot_colors_1, xlim = xlim_range, ylim = c(0, 1),
           xaxt = "n",
-          xlab = "Round (Number of Clusters + 1)", ylab = "Proportion",
+          xlab = "Round (Number of units)", ylab = "Proportion",
           main = "Statistics of Internal Relative Flow\nby Cluster")
   grid()
   
@@ -161,7 +161,7 @@ flowbca_plot <- function(stat_data, upper_bound = NULL) {
   matplot(x = x_values, y = y_values_2, type = plot_type, pch = plot_pch,
           lty = 1, lwd = 2, col = plot_colors_2, xlim = xlim_range, ylim = c(0, 1),
           xaxt = "n",
-          xlab = "Round (Number of Clusters + 1)", ylab = "Proportion",
+          xlab = "Round (Number of units)", ylab = "Proportion",
           main = "Proportion of Intra- and Inter-Cluster\nFlows in Overall Flow")
   grid()
   axis(1, at = axis_ticks[axis_ticks == floor(axis_ticks)], labels = axis_ticks[axis_ticks == floor(axis_ticks)])

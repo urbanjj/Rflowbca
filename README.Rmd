@@ -246,7 +246,7 @@ $$
 
 ```{r modularity-example, out.width="60%", fig.width=8,fig.height=6, fig.align = 'center'}
 # Calculate modularity for each round
-modularity_data <- flowbca_modularity(bca_result$unit_set, bca_result$F_matrix_history, resolution=3)
+modularity_data <- flowbca_modularity(bca_result$unit_set, bca_result$F_matrix_history, resolution=1)
 
 # Plot modularity over rounds
 plot(modularity_data$round, modularity_data$modularity, type='l',
@@ -345,10 +345,10 @@ gis_layers <- flowbca_gis_layer(bca_result$unit_set, KR_SiGun,
 
 # Plot the spatial clusters at different rounds
 par(mfrow = c(2, 2), mar = c(0.1, 0.1, 1.5, 0.1))
-plot(gis_layers$`160`["sourceunit"], key.pos = NULL, reset = FALSE, main = "Round 160 (Initial)")
+plot(gis_layers$`159`["sourceunit"], key.pos = NULL, reset = FALSE, main = "Round 159 (Initial)")
 plot(gis_layers$`100`["sourceunit"], key.pos = NULL, reset = FALSE, main = "Round 100")
 plot(gis_layers$`50`["sourceunit"], key.pos = NULL, reset = FALSE, main = "Round 50")
-plot(gis_layers$`14`["sourceunit"], key.pos = NULL, reset = FALSE, main = "Round 14 (Final)")
+plot(gis_layers$`13`["sourceunit"], key.pos = NULL, reset = FALSE, main = "Round 13 (Final)")
 ```
 
 -   **Considerations**
@@ -370,7 +370,7 @@ Creates a GIF animation to visualize the dynamic process of spatial clustering.
 flowbca_ani(
     flowbca_gis = gis_layers,
     unit_set = bca_result$unit_set,
-    filenm = "flowbca_clustering.gif",
+    file_nm = "flowbca_clustering.gif",
     width = 800
 )
 ```
